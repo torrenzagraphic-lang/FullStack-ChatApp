@@ -1,15 +1,33 @@
-import { Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import React from 'react'
 
-export default function Index() {
+const HomeScreen = () => {
+
+  const pingBackend = async() =>{
+    const res = await fetch("http://192.168.1.35:3000");
+    const data = await res.text();
+    console.log(data)
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+    <View>
+      <Text>HomeScreen</Text>
+      <Pressable style={styles.btn} onPress={pingBackend}>
+        <Text style={styles.btnt}>Ping backend</Text>
+      </Pressable>
     </View>
-  );
+  )
 }
+
+export default HomeScreen
+
+const styles = StyleSheet.create({
+  btn:{
+    backgroundColor:'black',
+    borderRadius:20,
+    padding:10,
+  },
+  btnt:{
+    color:'white'
+  }
+})
