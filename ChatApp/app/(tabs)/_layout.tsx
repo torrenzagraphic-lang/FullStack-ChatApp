@@ -1,22 +1,34 @@
 import { Colors } from "@/constants/colors";
 import { Tabs } from "expo-router";
+import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
-export default function TabsLayout(){
-    return(
+export default function TabsLayout() {
+
+    const insets = useSafeAreaInsets();
+
+    return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor:Colors.primary,
-                tabBarInactiveBackgroundColor:Colors.textMuted,
-                tabBarStyle:{
-                    backgroundColor:Colors.surface,
-                    borderTopColor:Colors.border,
-                    borderTopWidth:0.5,
+                tabBarActiveTintColor: Colors.primary,
+                tabBarInactiveBackgroundColor: Colors.textMuted,
+                tabBarStyle: {
+                    backgroundColor: Colors.surface,
+                    borderTopColor: Colors.border,
+                    borderTopWidth: 0.5,
+
+                    height: 56 + (Platform.OS === 'android' ? Math.max(insets.bottom, 0) : insets.bottom),
+                    paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 4) : insets.bottom,
+                    paddingTop:8
+                },
+                headerStyle:{
+                    backgroundColor:Colors.background
                 }
             }}
-            
+
         >
-            <Tabs.Screen name="index"/>
+            <Tabs.Screen name="index" />
         </Tabs>
     )
 }
