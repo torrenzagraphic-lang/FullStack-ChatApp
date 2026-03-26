@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { Link } from 'expo-router';
 
 const HomeScreen = () => {
 
@@ -15,6 +16,11 @@ const HomeScreen = () => {
       <Pressable style={styles.btn} onPress={pingBackend}>
         <Text style={styles.btnt}>Ping backend</Text>
       </Pressable>
+      <Link href={'/(auth)/SignIn'}>
+        <Text>
+          Go to sign in
+        </Text>
+      </Link>
     </View>
   )
 }
