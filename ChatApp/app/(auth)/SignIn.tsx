@@ -4,11 +4,15 @@ import React from 'react'
 const SignIn = () => {
     return (
         <View>
-            <Text>SignIn</Text>
+            <Text style={styles.Text}>SignIn</Text>
         </View>
     )
 }
 
 export default SignIn
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    Text:{
+        color:'white'
+    }
+})

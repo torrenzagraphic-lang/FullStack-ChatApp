@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 
 export default function Layout() {
-  const isLoggedIn = false;
+  const isLoggedIn = true;
   return (
     <Stack
       screenOptions={{
