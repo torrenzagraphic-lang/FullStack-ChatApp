@@ -13,7 +13,7 @@ export default function TabsLayout() {
         <Tabs
             screenOptions={{
                 tabBarActiveTintColor: Colors.primary,
-                tabBarInactiveBackgroundColor: Colors.textMuted,
+                tabBarInactiveTintColor: Colors.textMuted,
                 tabBarStyle: {
                     backgroundColor: Colors.surface,
                     borderTopColor: Colors.border,
@@ -39,6 +39,18 @@ export default function TabsLayout() {
                 title:'Chats',
                 tabBarIcon:({color, size}) =>(
                     <Ionicons name="chatbubbles-outline" size={size} color={color}/>
+                )
+            }}/>
+            <Tabs.Screen name="discover" options={{
+                title:'Discover',
+                tabBarIcon:({color, size}) =>(
+                    <Ionicons name="search-outline" size={size} color={color}/>
+                )
+            }}/>
+            <Tabs.Screen name="profile" options={{
+                title:'Profile',
+                tabBarIcon:({color, size}) =>(
+                    <Ionicons name="person-outline" size={size} color={color}/>
                 )
             }}/>
         </Tabs>
