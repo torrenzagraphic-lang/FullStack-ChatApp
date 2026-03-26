@@ -2,6 +2,7 @@ import { Colors } from "@/constants/colors";
 import { Tabs } from "expo-router";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {Ionicons} from '@expo/vector-icons'
 
 
 export default function TabsLayout() {
@@ -24,11 +25,22 @@ export default function TabsLayout() {
                 },
                 headerStyle:{
                     backgroundColor:Colors.background
+                },
+                headerTintColor:Colors.textPrimary,
+                headerShadowVisible:false,
+                headerTitleStyle:{
+                    fontWeight:700,
+                    fontSize:20,
                 }
             }}
 
         >
-            <Tabs.Screen name="index" />
+            <Tabs.Screen name="index" options={{
+                title:'Chats',
+                tabBarIcon:({color, size}) =>(
+                    <Ionicons name="chatbubbles-outline" size={size} color={color}/>
+                )
+            }}/>
         </Tabs>
     )
 }
