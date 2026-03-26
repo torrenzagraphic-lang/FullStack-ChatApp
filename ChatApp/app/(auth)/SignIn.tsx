@@ -75,6 +75,24 @@ const SignIn = () => {
                             Sign in to continue chatting
                         </Text>
                     </View>
+
+                    {
+                        error && (
+                            <View
+                                style={{
+                                    backgroundColor: Colors.errorMuted,
+                                    padding: 12,
+                                    borderRadius: 12,
+                                    marginBottom: 16
+                                }}
+                            >
+                                <Text style={{
+                                    color: Colors.error, fontSize: 14
+                                }}>{error}</Text>
+                            </View>
+                        )
+                    }
+
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
