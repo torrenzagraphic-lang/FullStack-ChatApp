@@ -13,6 +13,7 @@ import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 const SignIn = () => {
     const [email, setEmail] = useState("");
@@ -94,20 +95,20 @@ const SignIn = () => {
                                 {error}
                             </Text>
                         </View>
-                    )
-                    }
-
+                    )}
 
                     <Text
                         style={{
-                            color:Colors.textSecondary,
-                            fontSize:13,
-                            fontWeight:'600',
-                            marginBottom:6,
-                            marginLeft:4,
+                            color: Colors.textSecondary,
+                            fontSize: 13,
+                            fontWeight: "600",
+                            marginBottom: 6,
+                            marginLeft: 4,
                         }}
-                    >Email</Text>
-                    <TextInput 
+                    >
+                        Email
+                    </Text>
+                    <TextInput
                         value={email}
                         onChangeText={setEmail}
                         placeholder="your@example.com"
@@ -116,65 +117,114 @@ const SignIn = () => {
                         autoCapitalize="none"
                         autoCorrect={false}
                         style={{
-                            backgroundColor:Colors.card,
-                            borderWidth:1,
-                            borderColor:Colors.border,
-                            borderRadius:12,
-                            paddingHorizontal:16,
-                            paddingVertical:14,
-                            color:Colors.textPrimary,
-                            fontSize:15,
-                            marginBottom:16,
+                            backgroundColor: Colors.card,
+                            borderWidth: 1,
+                            borderColor: Colors.border,
+                            borderRadius: 12,
+                            paddingHorizontal: 16,
+                            paddingVertical: 14,
+                            color: Colors.textPrimary,
+                            fontSize: 15,
+                            marginBottom: 16,
                         }}
                     />
                     <Text
                         style={{
-                            color:Colors.textSecondary,
-                            fontSize:13,
-                            fontWeight:'600',
-                            marginBottom:6,
-                            marginLeft:4,
-                        }}
-                    >Password</Text>
-                    <View style={{ position:'relative',marginBottom:24}}>
-                        <TextInput 
-                        value={password}
-                        onChangeText={setPassword}
-                        placeholder="Enter your password"
-                        placeholderTextColor={Colors.textMuted}
-                        secureTextEntry={secureText}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        style={{
-                            backgroundColor:Colors.card,
-                            borderWidth:1,
-                            borderColor:Colors.border,
-                            borderRadius:12,
-                            paddingHorizontal:16,
-                            paddingVertical:14,
-                            paddingRight:48,
-                            color:Colors.textPrimary,
-                            fontSize:15,
-                        }}
-                    />
-                    <Pressable
-                        onPress={()=> setSecureText(!secureText)}
-                        style={{
-                            position:'absolute',
-                            right:12,
-                            top:0,
-                            bottom:0,
-                            justifyContent:'center'
+                            color: Colors.textSecondary,
+                            fontSize: 13,
+                            fontWeight: "600",
+                            marginBottom: 6,
+                            marginLeft: 4,
                         }}
                     >
-                        <Ionicons
-                            name={secureText ? 'eye-off-outline' : 'eye-outline'}
-                            size={20}
-                            color={Colors.textMuted}
+                        Password
+                    </Text>
+                    <View style={{ position: "relative", marginBottom: 24 }}>
+                        <TextInput
+                            value={password}
+                            onChangeText={setPassword}
+                            placeholder="Enter your password"
+                            placeholderTextColor={Colors.textMuted}
+                            secureTextEntry={secureText}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            style={{
+                                backgroundColor: Colors.card,
+                                borderWidth: 1,
+                                borderColor: Colors.border,
+                                borderRadius: 12,
+                                paddingHorizontal: 16,
+                                paddingVertical: 14,
+                                paddingRight: 48,
+                                color: Colors.textPrimary,
+                                fontSize: 15,
+                            }}
                         />
-                    </Pressable>
+                        <Pressable
+                            onPress={() => setSecureText(!secureText)}
+                            style={{
+                                position: "absolute",
+                                right: 12,
+                                top: 0,
+                                bottom: 0,
+                                justifyContent: "center",
+                            }}
+                        >
+                            <Ionicons
+                                name={secureText ? "eye-off-outline" : "eye-outline"}
+                                size={20}
+                                color={Colors.textMuted}
+                            />
+                        </Pressable>
                     </View>
 
+                    <Pressable style={({ pressed }) => ({
+                        backgroundColor: pressed ? Colors.primaryDark : Colors.primary,
+                        borderRadius: 12,
+                        paddingVertical: 15,
+                        alignItems: 'center',
+                        opacity: loading ? 0.7 : 1,
+                    })}>
+                        {loading ? (
+                            <ActivityIndicator color={"#ffff"} />
+                        ) : (
+                            <Text style={{ color: "#ffff", fontSize: 16, fontWeight: "700" }}>
+                                Sign In
+                            </Text>
+                        )}
+
+
+                    </Pressable>
+                        <View
+                            style={{
+                                flexDirection:'row',
+                                justifyContent:'center',
+                                marginTop:24,
+                            }}
+                        >
+
+                            <Text
+                                style={{
+                                    color:Colors.textSecondary,
+                                    fontSize:14
+                                }}
+                            >{"Don't have an account?"}
+                                {" "}
+                            </Text>
+                            <Link href={"/(auth)/SignUp"} asChild>
+                            <Pressable>
+                                <Text style={{
+                                    color:Colors.primaryLight,
+                                    fontSize:14,
+                                    fontWeight:'600'
+
+                                }}>
+                                    Sign Up
+                                </Text>
+                            </Pressable>
+                            </Link>
+
+                        </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
