@@ -5,7 +5,6 @@
 
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
@@ -13,7 +12,7 @@ datasource db {
 }
 
 model Test {
-  id          String @default(cuid()) @id
+  id          String @id @default(cuid())
   name        String
   description String
 }
@@ -28,6 +27,11 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  friendReqSent     FriendReq[] @relation("FriendReqSent")
+  friendReqReceived FriendReq[] @relation("FriendReqReceived")
+  friends           Friend[]    @relation("Friends1")
+  friendsOf         Friend[]    @relation("Friends2")
 
   @@unique([email])
   @@map("user")
@@ -79,4 +83,45 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model FriendReq {
+  id         String @id @default(cuid())
+  senderId   String
+  receiverId String
+
+  sender   User @relation("FriendReqSent", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("FriendReqReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  status    FriendReqStatus @default(PENDING)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId])
+  @@index([senderId])
+}
+
+model Friend {
+  id String @id @default(cuid())
+
+  userId1 String
+  userId2 String
+
+  user1 User @relation("Friends1", fields: [userId1], references: [id], onDelete: Cascade)
+  user2 User @relation("Friends2", fields: [userId2], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId1, userId2])
+  @@index([userId1])
+  @@index([userId2])
+}
+
+enum FriendReqStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
 }
