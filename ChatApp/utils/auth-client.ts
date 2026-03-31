@@ -3,7 +3,7 @@ import { expoClient } from "@better-auth/expo/client";
 import * as SecureStore from "expo-secure-store";
 
 export const authClient = createAuthClient({
-    baseURL: "http://192.168.1.35:3000", // Base URL of your Better Auth backend.
+    baseURL: process.env.EXPO_PUBLIC_API_URL!, // Base URL of your Better Auth backend.
     plugins: [
         expoClient({
             scheme: "chatapp",
