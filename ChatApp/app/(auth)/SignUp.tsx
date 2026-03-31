@@ -14,14 +14,33 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useAuth } from "@/contexts/auth-contexts";
 
 const SignUp = () => {
+    const { signUp } = useAuth();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [secureText, setSecureText] = useState(true);
+
+    const onSignUp = async () => {
+        try {
+            if (!email || !password || !name) {
+                setError("Please fill in all fields");
+                return;
+            }
+            setError(null);
+            setLoading(true);
+            const err = await signUp(name, email, password);
+            if (err) setError(err);
+        } catch (error) {
+            setError((error as Error).message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <SafeAreaView
@@ -54,7 +73,11 @@ const SignUp = () => {
                                 marginBottom: 16,
                             }}
                         >
-                            <Ionicons name="chatbubbles" size={36} color="#fff" />
+                            <Ionicons
+                                name="chatbubbles"
+                                size={36}
+                                color="#fff"
+                            />
                         </View>
 
                         <Text
@@ -114,7 +137,6 @@ const SignUp = () => {
                         onChangeText={setName}
                         placeholder="Your name"
                         placeholderTextColor={Colors.textMuted}
-                  
                         autoCapitalize="none"
                         autoCorrect={false}
                         style={{
@@ -204,60 +226,73 @@ const SignUp = () => {
                             }}
                         >
                             <Ionicons
-                                name={secureText ? "eye-off-outline" : "eye-outline"}
+                                name={
+                                    secureText
+                                        ? "eye-off-outline"
+                                        : "eye-outline"
+                                }
                                 size={20}
                                 color={Colors.textMuted}
                             />
                         </Pressable>
                     </View>
 
-                    <Pressable style={({ pressed }) => ({
-                        backgroundColor: pressed ? Colors.primaryDark : Colors.primary,
-                        borderRadius: 12,
-                        paddingVertical: 15,
-                        alignItems: 'center',
-                        opacity: loading ? 0.7 : 1,
-                    })}>
+                    <Pressable
+                        onPress={onSignUp}
+                        disabled={loading}
+                        style={({ pressed }) => ({
+                            backgroundColor: pressed
+                                ? Colors.primaryDark
+                                : Colors.primary,
+                            borderRadius: 12,
+                            paddingVertical: 15,
+                            alignItems: "center",
+                            opacity: loading ? 0.7 : 1,
+                        })}
+                    >
                         {loading ? (
                             <ActivityIndicator color={"#ffff"} />
                         ) : (
-                            <Text style={{ color: "#ffff", fontSize: 16, fontWeight: "700" }}>
+                            <Text
+                                style={{
+                                    color: "#ffff",
+                                    fontSize: 16,
+                                    fontWeight: "700",
+                                }}
+                            >
                                 Sign Up
                             </Text>
                         )}
-
-
                     </Pressable>
-                        <View
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            marginTop: 24,
+                        }}
+                    >
+                        <Text
                             style={{
-                                flexDirection:'row',
-                                justifyContent:'center',
-                                marginTop:24,
+                                color: Colors.textSecondary,
+                                fontSize: 14,
                             }}
                         >
-
-                            <Text
-                                style={{
-                                    color:Colors.textSecondary,
-                                    fontSize:14
-                                }}
-                            >{"Already have an account?"}
-                                {" "}
-                            </Text>
-                            <Link href={"/(auth)/SignIn"} asChild>
+                            {"Already have an account?"}{" "}
+                        </Text>
+                        <Link href={"/(auth)/SignIn"} asChild>
                             <Pressable>
-                                <Text style={{
-                                    color:Colors.primaryLight,
-                                    fontSize:14,
-                                    fontWeight:'600'
-
-                                }}>
-                                  Sign In
+                                <Text
+                                    style={{
+                                        color: Colors.primaryLight,
+                                        fontSize: 14,
+                                        fontWeight: "600",
+                                    }}
+                                >
+                                    Sign In
                                 </Text>
                             </Pressable>
-                            </Link>
-
-                        </View>
+                        </Link>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>

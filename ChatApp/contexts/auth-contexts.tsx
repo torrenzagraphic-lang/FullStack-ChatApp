@@ -13,12 +13,42 @@ export interface AuthUser {
 interface AuthContextType {
     user: AuthUser | null;
     token: string | null;
-    loading: boolean;
-    SignIn: (email: string, password: string) => Promise<string | null>;
+    isLoading: boolean;
+    signIn: (email: string, password: string) => Promise<string | null>;
+    signUp: (
+        name: string,
+        email: string,
+        password: string,
+    ) => Promise<string | null>;
     signOut: () => Promise<void>;
 }
 
+const AuthContext = createContext<AuthContextType>({
+    user: null,
+    token: null,
+    isLoading: false,
+    signIn: async () => null,
+    signUp: async () => null,
+    signOut: async () => { },
+});
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const { data, error, isPending } = authClient.useSession();
+
+    const isLoading = isPending;
+    const session = data?.session;
+
+    const user: AuthUser | null = data?.user
+        ? {
+            id: data?.user.id,
+            name: data?.user.name,
+            email: data?.user.email,
+            image: data?.user.image,
+        }
+        : null;
+
+    const token = session?.token!;
+
     const signIn = async (
         email: string,
         password: string,
@@ -37,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
     const signUp = async (
-        name:string,
+        name: string,
         email: string,
         password: string,
     ): Promise<string | null> => {
@@ -55,4 +85,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return "Sign in failed";
         }
     };
+
+    const signOut = async () => {
+        await authClient.signOut();
+    };
+
+    return(<AuthContext.Provider
+        value={{ user, token, signIn, signOut, signUp, isLoading }}
+    >
+        {children}
+    </AuthContext.Provider>);
 }
+
+export const useAuth = () => useContext(AuthContext);
