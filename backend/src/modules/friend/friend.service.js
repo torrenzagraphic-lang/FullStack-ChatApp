@@ -1,7 +1,14 @@
 import { prisma } from '../../lib/db.js';
 
-export const sendFriendReq = async (senderId, receiverId) => {};
-export const getFriendsDetailed = async (userId) => {};
+
+
+
+function normalizePair(a, b) {
+    return a < b ? [a, b] : [b, a];
+}
+
+export const sendFriendReq = async (senderId, receiverId) => { };
+export const getFriendsDetailed = async (userId) => { };
 export const discoverUsers = async (userId, search = '') => {
     const q = search.trim();
 
@@ -10,11 +17,11 @@ export const discoverUsers = async (userId, search = '') => {
             id: { not: userId },
             ...(q
                 ? {
-                      OR: [
-                          { name: { contains: q, mode: 'insensitive' } },
-                          { email: { contains: q, mode: 'insensitive' } },
-                      ],
-                  }
+                    OR: [
+                        { name: { contains: q, mode: 'insensitive' } },
+                        { email: { contains: q, mode: 'insensitive' } },
+                    ],
+                }
                 : {}),
         },
         select: {
@@ -28,4 +35,19 @@ export const discoverUsers = async (userId, search = '') => {
         },
         take: 50,
     });
+
+    if (users.length === 0) return [];
+
+
+    const ids = users.map((u) => u.id)
+
+    const friendPairs = ids.map((otherId) => {
+        const [u1, u2] = normalizePair(userId, otherId)
+        return { userId1:u1 , userId2:u2}
+    })
+
+    const [] = await Promise.all([
+        
+    ])
+
 };
