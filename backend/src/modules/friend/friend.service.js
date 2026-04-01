@@ -14,7 +14,7 @@ export const discoverUsers = async (userId, search = "") => {
             id: { not: userId },
             ...(q
                 ? {
-                      R: [
+                      OR: [
                           { name: { contains: q, mode: "insensitive" } },
                           { email: { contains: q, mode: "insensitive" } },
                       ],
