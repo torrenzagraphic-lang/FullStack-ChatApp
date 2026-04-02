@@ -2,7 +2,7 @@ import {
     discoverUsers,
     getFriendsDetailed,
     sendFriendReq,
-} from './friend.service.js';
+} from "./friend.service.js";
 
 export async function sendRequest(req, res) {
     try {
@@ -15,7 +15,7 @@ export async function sendRequest(req, res) {
     } catch (error) {
         return res
             .status(400)
-            .json({ message: error.message || 'Failed to send request' });
+            .json({ message: error.message || "Failed to send request" });
     }
 }
 export async function listFriends(req, res) {
@@ -26,11 +26,11 @@ export async function listFriends(req, res) {
     } catch (error) {
         return res
             .status(400)
-            .json({ message: error.message || 'Failed to list friends' });
+            .json({ message: error.message || "Failed to list friends" });
     }
 }
 
-export async function discover(res, req) {
+export async function discover(req, res) {
     try {
         const userId = req.user.id;
         const search = req.query.search;
@@ -39,6 +39,6 @@ export async function discover(res, req) {
     } catch (error) {
         return res
             .status(400)
-            .json({ message: error.message || 'Failed to discover users' });
+            .json({ message: error.message || "Failed to discover users" });
     }
 }

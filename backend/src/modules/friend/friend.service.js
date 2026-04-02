@@ -4,8 +4,71 @@ function normalizePair(a, b) {
     return a < b ? [a, b] : [b, a];
 }
 
-export const sendFriendReq = async (senderId, receiverId) => {};
-export const getFriendsDetailed = async (userId) => {};
+export const sendFriendReq = async (senderId, receiverId) => {
+    if (!receiverId) throw new Error("receiverId is required");
+
+    if (senderId === receiverId) {
+        throw new Error("You cannot send a friend to request to yourself");
+    }
+
+    const [u1, u2] = normalizePair(senderId, receiverId);
+
+    const existingFriend = await prisma.friend.findFirst({
+        where: {
+            userId1: u1,
+            userId2: u2,
+        },
+        select: {
+            id: true,
+        },
+    });
+    if (existingFriend) throw new Error("You are already friends");
+
+    const existing = await prisma.friendReq.findFirst({
+        where: {
+            OR: [
+                { senderId, receiverId },
+                { senderId: receiverId, receiverId: senderId },
+            ],
+        },
+    });
+
+    if (existing) {
+        throw new Error("Friend request already exists");
+    }
+
+    await prisma.friendReq.create({
+        data: {
+            senderId,
+            receiverId,
+            status: "PENDING",
+        },
+    });
+
+    return {
+        success: true,
+        message: "Friend request sent successfully",
+    };
+};
+export const getFriendsDetailed = async (userId) => {
+    const links = await prisma.friend.findMany({
+        where: {
+            OR: [{ userId1: userId }, { userId2: userId }],
+        },
+        include: {
+            user1: {
+                select: { id: true, name: true, email: true, image: true },
+            },
+            user2: {
+                select: { id: true, name: true, email: true, image: true },
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    return links.map((l) => (l.userId1 === userId ? l.user2 : l.user1));
+};
 export const discoverUsers = async (userId, search = "") => {
     const q = search.trim();
 
@@ -84,7 +147,7 @@ export const discoverUsers = async (userId, search = "") => {
     const outgoingSet = new Set(outgoing.map((r) => r.receiverId));
     const incomingSet = new Set(incoming.map((r) => r.senderId));
 
-    return user.map((u) => {
+    return users.map((u) => {
         const [u1, u2] = normalizePair(userId, u.id);
         const key = `${u1}:${u2}`;
 
