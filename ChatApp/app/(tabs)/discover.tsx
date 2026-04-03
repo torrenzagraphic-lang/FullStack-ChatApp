@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useDiscoverUsers } from "@/hooks/useFriendQueries";
+import { UserCard } from "@/components/useCard";
 
 const Discover = () => {
     const [search, setSearch] = useState("");
@@ -35,8 +36,20 @@ const Discover = () => {
                     data={users}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                        <Text>{JSON.stringify(item)}</Text>
+                        <UserCard
+                            user={item}
+                            onSendRequest={() => {}}
+                            onAcceptRequest={() => {}}
+                            onRejectRequest={() => {}}
+                            onCancelRequest={() => {}}
+                        />
                     )}
+                    ListEmptyComponent={
+                        <Text style={styles.emptyText}>No user Found</Text>
+                    }
+                    contentContainerStyle={{
+                        paddingBottom: 20,
+                    }}
                 />
             )}
         </View>
