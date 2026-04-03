@@ -7,13 +7,17 @@ import {
     View,
 } from "react-native";
 import React, { useState } from "react";
-import { useDiscoverUsers } from "@/hooks/useFriendQueries";
+import { useDiscoverUsers, useSendFriendReq } from "@/hooks/useFriendQueries";
 import { UserCard } from "@/components/useCard";
 
 const Discover = () => {
     const [search, setSearch] = useState("");
     const { data: users = [], isLoading } = useDiscoverUsers(search);
+    const sendReqMutation = useSendFriendReq();
 
+    const handleSenReq = async (receiverId: string) => {
+        sendReqMutation.mutate(receiverId);
+    };
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Discover People</Text>
@@ -38,7 +42,7 @@ const Discover = () => {
                     renderItem={({ item }) => (
                         <UserCard
                             user={item}
-                            onSendRequest={() => {}}
+                            onSendRequest={handleSenReq}
                             onAcceptRequest={() => {}}
                             onRejectRequest={() => {}}
                             onCancelRequest={() => {}}
