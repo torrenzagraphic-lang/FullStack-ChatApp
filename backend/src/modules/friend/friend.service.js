@@ -175,6 +175,10 @@ export const acceptFriendReq = async (requestId, receiverId) => {
             status: "PENDING",
         },
     });
+    if (!friendRequest) {
+        throw new Error("Friend request not found");
+    }
+    const { senderId } = friendRequest;
 };
 export const rejectFriendReq = async () => {};
 export const cancelFriendReq = async () => {};
