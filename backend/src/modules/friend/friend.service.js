@@ -166,3 +166,15 @@ export const discoverUsers = async (userId, search = "") => {
         return { ...u, relationship, friendReqId };
     });
 };
+
+export const acceptFriendReq = async (requestId, receiverId) => {
+    const friendRequest = await prisma.friendReq.findFirst({
+        where: {
+            id: requestId,
+            receiverId,
+            status: "PENDING",
+        },
+    });
+};
+export const rejectFriendReq = async () => {};
+export const cancelFriendReq = async () => {};

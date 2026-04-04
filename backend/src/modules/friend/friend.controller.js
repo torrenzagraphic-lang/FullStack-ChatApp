@@ -2,6 +2,9 @@ import {
     discoverUsers,
     getFriendsDetailed,
     sendFriendReq,
+    acceptFriendReq,
+    cancelFriendReq,
+    rejectFriendReq,
 } from "./friend.service.js";
 
 export async function sendRequest(req, res) {
@@ -40,5 +43,45 @@ export async function discover(req, res) {
         return res
             .status(400)
             .json({ message: error.message || "Failed to discover users" });
+    }
+}
+
+export async function acceptRequest(req, res) {
+    try {
+        const userId = req.user.id;
+        const { requestId } = req.params;
+
+        const result = await acceptFriendReq(requestId, userId);
+        return res.json(result);
+    } catch (error) {
+        return res
+            .status(400)
+            .json({ message: error.message || "Failed to Accept request" });
+    }
+}
+export async function rejectRequest(req, res) {
+    try {
+        const userId = req.user.id;
+        const { requestId } = req.params;
+
+        const result = await rejectFriendReq(requestId, userId);
+        return res.json(result);
+    } catch (error) {
+        return res
+            .status(400)
+            .json({ message: error.message || "Failed to Reject request" });
+    }
+}
+export async function cancelRequest(req, res) {
+    try {
+        const userId = req.user.id;
+        const { requestId } = req.params;
+
+        const result = await cancelFriendReq(requestId, userId);
+        return res.json(result);
+    } catch (error) {
+        return res
+            .status(400)
+            .json({ message: error.message || "Failed to Cancel request" });
     }
 }

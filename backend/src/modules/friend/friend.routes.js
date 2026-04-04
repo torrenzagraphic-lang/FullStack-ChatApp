@@ -1,6 +1,13 @@
 import { Router } from "express";
 import { requireAuth } from "../../lib/require-auth.js";
-import { discover, listFriends, sendRequest } from "./friend.controller.js";
+import {
+    acceptRequest,
+    cancelRequest,
+    discover,
+    listFriends,
+    rejectRequest,
+    sendRequest,
+} from "./friend.controller.js";
 
 export const friendRouter = Router();
 
@@ -12,3 +19,7 @@ friendRouter.post("/request", sendRequest);
 friendRouter.get("/list", listFriends);
 //discover
 friendRouter.get("/discover", discover);
+
+friendRouter.post("/request/id/:requestId/accept", acceptRequest);
+friendRouter.post("/request/id/:requestId/reject", rejectRequest);
+friendRouter.post("/request/id/:requestId/cancel", cancelRequest);
