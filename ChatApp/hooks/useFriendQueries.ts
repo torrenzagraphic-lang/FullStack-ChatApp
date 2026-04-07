@@ -1,21 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { friendService } from "@/services/friend.service";
+import { friendService } from "../services/friend.service";
 
 export const USER_KEYS = {
     all: ["users"] as const,
-    discover: (search: string) =>
-        [...USER_KEYS.all, "discover", search] as const,
-    friends: () => [...USER_KEYS.all, "friends"] as const,
+    discover: (search: string) => ["users", "discover", search] as const,
+    discoverAll: ["users", "discover"] as const,
+    friends: () => ["users", "friends"] as const,
 };
 
+// 🔍 Discover
 export function useDiscoverUsers(search: string) {
     return useQuery({
         queryKey: USER_KEYS.discover(search),
         queryFn: () => friendService.discoverUsers(search),
-        staleTime: 1000 * 60 * 5,
     });
 }
 
+// 📤 Send Request
 export function useSendFriendReq() {
     const queryClient = useQueryClient();
 
@@ -24,42 +25,69 @@ export function useSendFriendReq() {
             friendService.sendFriendReq(receiverId),
 
         onMutate: async (receiverId) => {
-            await queryClient.cancelQueries({ queryKey: USER_KEYS.all });
+            await queryClient.cancelQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
 
-            const previousUsers = queryClient.getQueryData<any[]>(
-                USER_KEYS.discover(""),
+            const previousUsers = queryClient.getQueriesData({
+                queryKey: USER_KEYS.discoverAll,
+            });
+
+            queryClient.setQueriesData(
+                { queryKey: USER_KEYS.discoverAll },
+                (old: any) => {
+                    if (!old) return old;
+
+                    return old.map((user: any) =>
+                        user.id === receiverId
+                            ? { ...user, relationship: "REQUEST_SENT" }
+                            : user,
+                    );
+                },
             );
 
-            if (previousUsers) {
-                queryClient.setQueriesData(
-                    { queryKey: USER_KEYS.all },
-                    (old: any[]) => {
-                        if (!old) return [];
-                        return old.map((user) =>
-                            user.id === receiverId
-                                ? { ...user, relationship: "REQUEST_SENT" }
-                                : user,
-                        );
-                    },
-                );
-            }
             return { previousUsers };
         },
-        onError: (err, newTodo, context) => {
-            if (context?.previousUsers) {
-                queryClient.setQueriesData(
-                    { queryKey: USER_KEYS.all },
-                    context.previousUsers,
-                );
-            }
+
+        onError: (_, __, context) => {
+            context?.previousUsers?.forEach(([key, data]) => {
+                queryClient.setQueryData(key, data);
+            });
         },
+
+        onSuccess: (data, receiverId) => {
+            queryClient.setQueriesData(
+                { queryKey: USER_KEYS.discoverAll },
+                (old: any) => {
+                    if (!old) return old;
+
+                    return old.map((user: any) =>
+                        user.id === receiverId
+                            ? {
+                                  ...user,
+                                  relationship: "REQUEST_SENT",
+                                  friendRequestId:
+                                      data?.id ??
+                                      data?.friendRequestId ??
+                                      data?.requestId ??
+                                      null,
+                              }
+                            : user,
+                    );
+                },
+            );
+        },
+
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: USER_KEYS.all });
+            queryClient.invalidateQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
         },
     });
 }
 
-export function useFriend() {
+// 👥 Friends
+export function useFriends() {
     return useQuery({
         queryKey: USER_KEYS.friends(),
         queryFn: () => friendService.getFriends(),
@@ -67,61 +95,76 @@ export function useFriend() {
     });
 }
 
+// ✅ Accept
 export function useAcceptFriendRequest() {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: (requestId: string) =>
             friendService.acceptFriendRequest(requestId),
 
         onMutate: async (requestId) => {
-            await queryClient.cancelQueries({ queryKey: USER_KEYS.all });
+            await queryClient.cancelQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
 
-            const previousUsers = queryClient.getQueryData<any[]>(
-                USER_KEYS.discover(""),
+            const previousUsers = queryClient.getQueriesData({
+                queryKey: USER_KEYS.discoverAll,
+            });
+
+            queryClient.setQueriesData(
+                { queryKey: USER_KEYS.discoverAll },
+                (old: any) => {
+                    if (!old) return old;
+
+                    return old.map((user: any) =>
+                        user.friendRequestId === requestId
+                            ? { ...user, relationship: "FRIEND" }
+                            : user,
+                    );
+                },
             );
 
-            if (previousUsers) {
-                queryClient.setQueriesData(
-                    { queryKey: USER_KEYS.all },
-                    (old: any[]) => {
-                        if (!old) return [];
-                        return old.map((user) =>
-                            user.friendRequestId === requestId
-                                ? { ...user, relationship: "FRIEND" }
-                                : user,
-                        );
-                    },
-                );
-            }
             return { previousUsers };
         },
-        onError: (err, newTodo, context) => {
-            if (context?.previousUsers) {
-                queryClient.setQueriesData(
-                    { queryKey: USER_KEYS.all },
-                    context.previousUsers,
-                );
-            }
+
+        onError: (_, __, context) => {
+            context?.previousUsers?.forEach(([key, data]) => {
+                queryClient.setQueryData(key, data);
+            });
         },
+
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: USER_KEYS.all });
+            queryClient.invalidateQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
         },
     });
 }
+
+// ❌ Reject
 export function useRejectFriendRequest() {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: (requestId: string) =>
             friendService.rejectFriendRequest(requestId),
 
         onMutate: async (requestId) => {
-            await queryClient.cancelQueries({ queryKey: USER_KEYS.all });
+            await queryClient.cancelQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
+
+            const previousUsers = queryClient.getQueriesData({
+                queryKey: USER_KEYS.discoverAll,
+            });
 
             queryClient.setQueriesData(
-                { queryKey: USER_KEYS.all },
-                (old: any[]) => {
-                    if (!old) return [];
-                    return old.map((user) =>
+                { queryKey: USER_KEYS.discoverAll },
+                (old: any) => {
+                    if (!old) return old;
+
+                    return old.map((user: any) =>
                         user.friendRequestId === requestId
                             ? {
                                   ...user,
@@ -132,27 +175,47 @@ export function useRejectFriendRequest() {
                     );
                 },
             );
+
+            return { previousUsers };
+        },
+
+        onError: (_, __, context) => {
+            context?.previousUsers?.forEach(([key, data]) => {
+                queryClient.setQueryData(key, data);
+            });
         },
 
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: USER_KEYS.all });
+            queryClient.invalidateQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
         },
     });
 }
+
+// 🚫 Cancel
 export function useCancelFriendRequest() {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: (requestId: string) =>
             friendService.cancelFriendRequest(requestId),
 
         onMutate: async (requestId) => {
-            await queryClient.cancelQueries({ queryKey: USER_KEYS.all });
+            await queryClient.cancelQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
+
+            const previousUsers = queryClient.getQueriesData({
+                queryKey: USER_KEYS.discoverAll,
+            });
 
             queryClient.setQueriesData(
-                { queryKey: USER_KEYS.all },
-                (old: any[]) => {
-                    if (!old) return [];
-                    return old.map((user) =>
+                { queryKey: USER_KEYS.discoverAll },
+                (old: any) => {
+                    if (!old) return old;
+
+                    return old.map((user: any) =>
                         user.friendRequestId === requestId
                             ? {
                                   ...user,
@@ -163,10 +226,20 @@ export function useCancelFriendRequest() {
                     );
                 },
             );
+
+            return { previousUsers };
+        },
+
+        onError: (_, __, context) => {
+            context?.previousUsers?.forEach(([key, data]) => {
+                queryClient.setQueryData(key, data);
+            });
         },
 
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: USER_KEYS.all });
+            queryClient.invalidateQueries({
+                queryKey: USER_KEYS.discoverAll,
+            });
         },
     });
 }

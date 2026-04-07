@@ -55,18 +55,15 @@ export const UserCard: React.FC<UserCardProps> = ({
                     <View style={styles.actionRow}>
                         <TouchableOpacity
                             style={[styles.button, styles.acceptButton]}
-                            onPress={() => {
-                                if (!user.friendRequestId) {
-                                    console.log("NO REQUEST ID ❌");
-                                    return;
-                                }
-                                onAcceptRequest(user.friendRequestId);
-                            }}
+                            onPress={() =>
+                                user.friendRequestId &&
+                                onAcceptRequest(user.friendRequestId)
+                            }
                         >
                             <Text style={styles.buttonText}>Accept</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.button, styles.cancelButton]}
+                            style={[styles.button, styles.rejectButton]}
                             onPress={() =>
                                 user.friendRequestId &&
                                 onRejectRequest(user.friendRequestId)
@@ -91,7 +88,7 @@ export const UserCard: React.FC<UserCardProps> = ({
         <View style={styles.card}>
             <Image
                 source={{
-                    uri: `https://api.dicebear.com/9.x/glass/png?seed=${user.id}`,
+                    uri: `https://robohash.org/${user.id}`,
                 }}
                 style={styles.avatar}
             />
