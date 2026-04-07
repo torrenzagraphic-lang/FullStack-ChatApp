@@ -7,16 +7,35 @@ import {
     View,
 } from "react-native";
 import React, { useState } from "react";
-import { useDiscoverUsers, useSendFriendReq } from "@/hooks/useFriendQueries";
+import {
+    useAcceptFriendRequest,
+    useCancelFriendRequest,
+    useDiscoverUsers,
+    useRejectFriendRequest,
+    useSendFriendReq,
+} from "@/hooks/useFriendQueries";
 import { UserCard } from "@/components/useCard";
 
 const Discover = () => {
     const [search, setSearch] = useState("");
     const { data: users = [], isLoading } = useDiscoverUsers(search);
     const sendReqMutation = useSendFriendReq();
+    const acceptReqMutation = useAcceptFriendRequest();
+    const rejectReqMutation = useRejectFriendRequest();
+    const cancelReqMutation = useCancelFriendRequest();
 
     const handleSenReq = async (receiverId: string) => {
         sendReqMutation.mutate(receiverId);
+    };
+    const handleAcpReq = async (requestId: string) => {
+        console.log("ACCEPT CLICKED:", requestId);
+        acceptReqMutation.mutate(requestId);
+    };
+    const handleRejReq = async (requestId: string) => {
+        rejectReqMutation.mutate(requestId);
+    };
+    const handleCanReq = async (requestId: string) => {
+        cancelReqMutation.mutate(requestId);
     };
     return (
         <View style={styles.container}>
@@ -43,9 +62,9 @@ const Discover = () => {
                         <UserCard
                             user={item}
                             onSendRequest={handleSenReq}
-                            onAcceptRequest={() => {}}
-                            onRejectRequest={() => {}}
-                            onCancelRequest={() => {}}
+                            onAcceptRequest={handleAcpReq}
+                            onRejectRequest={handleRejReq}
+                            onCancelRequest={handleCanReq}
                         />
                     )}
                     ListEmptyComponent={

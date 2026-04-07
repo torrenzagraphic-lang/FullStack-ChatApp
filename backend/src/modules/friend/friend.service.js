@@ -163,7 +163,7 @@ export const discoverUsers = async (userId, search = "") => {
             relationship = "REQUEST_RECEIVED";
             friendReqId = incoming.find((r) => r.senderId === u.id)?.id;
         }
-        return { ...u, relationship, friendReqId };
+        return { ...u, relationship, friendRequestId: friendReqId };
     });
 };
 
@@ -178,7 +178,81 @@ export const acceptFriendReq = async (requestId, receiverId) => {
     if (!friendRequest) {
         throw new Error("Friend request not found");
     }
+
     const { senderId } = friendRequest;
+
+    const [u1, u2] = normalizePair(senderId, receiverId);
+
+    await prisma.$transaction([
+        prisma.friendReq.update({
+            where: {
+                id: friendRequest.id,
+            },
+            data: {
+                status: "ACCEPTED",
+            },
+        }),
+        prisma.friend.upsert({
+            where: {
+                userId1_userId2: { userId1: u1, userId2: u2 },
+            },
+            create: {
+                userId1: u1,
+                userId2: u2,
+            },
+            update: {},
+        }),
+    ]);
+    return {
+        success: true,
+        message: "Friend request accepted successfully",
+    };
 };
-export const rejectFriendReq = async () => {};
-export const cancelFriendReq = async () => {};
+export const rejectFriendReq = async (senderId, receiverId) => {
+    const friendRequest = await prisma.friendReq.findFirst({
+        where: {
+            id: requestId,
+            receiverId,
+            status: "PENDING",
+        },
+    });
+    if (!friendRequest) {
+        throw new Error("Friend request not found");
+    }
+    await prisma.friendReq.update({
+        where: {
+            id: friendRequest.id,
+        },
+        data: {
+            status: "REJECTED",
+        },
+    });
+    return {
+        success: true,
+        message: "Friend request rejected successfully",
+    };
+};
+export const cancelFriendReq = async () => {
+    const friendRequest = await prisma.friendReq.findFirst({
+        where: {
+            id: requestId,
+            receiverId,
+            status: "PENDING",
+        },
+    });
+    if (!friendRequest) {
+        throw new Error("Friend request not found");
+    }
+    await prisma.friendReq.update({
+        where: {
+            id: friendRequest.id,
+        },
+        data: {
+            status: "CANCELLED",
+        },
+    });
+    return {
+        success: true,
+        message: "Friend request Cancelled successfully",
+    };
+};

@@ -55,10 +55,13 @@ export const UserCard: React.FC<UserCardProps> = ({
                     <View style={styles.actionRow}>
                         <TouchableOpacity
                             style={[styles.button, styles.acceptButton]}
-                            onPress={() =>
-                                user.friendRequestId &&
-                                onAcceptRequest(user.friendRequestId)
-                            }
+                            onPress={() => {
+                                if (!user.friendRequestId) {
+                                    console.log("NO REQUEST ID ❌");
+                                    return;
+                                }
+                                onAcceptRequest(user.friendRequestId);
+                            }}
                         >
                             <Text style={styles.buttonText}>Accept</Text>
                         </TouchableOpacity>

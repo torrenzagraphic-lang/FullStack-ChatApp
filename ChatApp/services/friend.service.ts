@@ -60,4 +60,61 @@ export const friendService = {
         if (!res.ok) throw new Error(data.message || "Failed to send request");
         return data;
     },
+    acceptFriendRequest: async (requestId: string) => {
+        const headers = await getHeaders();
+        const res = await fetch(
+            `${API_URL}/friend/request/id/${requestId}/accept`,
+            {
+                method: "POST",
+                headers,
+            },
+        );
+        let data;
+        try {
+            data = await res.clone().json();
+        } catch (error) {
+            data = await res.json();
+        }
+        if (!res.ok)
+            throw new Error(data.message || "Failed to accept request");
+        return data;
+    },
+    rejectFriendRequest: async (requestId: string) => {
+        const headers = await getHeaders();
+        const res = await fetch(
+            `${API_URL}/friend/request/id/${requestId}/reject`,
+            {
+                method: "POST",
+                headers,
+            },
+        );
+        let data;
+        try {
+            data = await res.clone().json();
+        } catch (error) {
+            data = await res.json();
+        }
+        if (!res.ok)
+            throw new Error(data.message || "Failed to reject request");
+        return data;
+    },
+    cancelFriendRequest: async (requestId: string) => {
+        const headers = await getHeaders();
+        const res = await fetch(
+            `${API_URL}/friend/request/id/${requestId}/cancel`,
+            {
+                method: "POST",
+                headers,
+            },
+        );
+        let data;
+        try {
+            data = await res.clone().json();
+        } catch (error) {
+            data = await res.json();
+        }
+        if (!res.ok)
+            throw new Error(data.message || "Failed to cancel request");
+        return data;
+    },
 };
