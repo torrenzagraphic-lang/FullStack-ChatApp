@@ -91,7 +91,7 @@ export function useFriends() {
     return useQuery({
         queryKey: USER_KEYS.friends(),
         queryFn: () => friendService.getFriends(),
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 5,
     });
 }
 

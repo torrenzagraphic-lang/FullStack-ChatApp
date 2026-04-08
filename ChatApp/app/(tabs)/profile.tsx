@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/auth-contexts";
 import { useRouter } from "expo-router";
 import { useFriends } from "@/hooks/useFriendQueries";
 import { Ionicons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Friend {
     id: string;
@@ -22,6 +23,7 @@ interface Friend {
 }
 
 const Profile = () => {
+    const queryClient = useQueryClient();
     const { user, signOut } = useAuth();
     const router = useRouter();
     const { data: friends = [], isLoading } = useFriends();
@@ -35,6 +37,7 @@ const Profile = () => {
                 onPress: () => signOut(),
             },
         ]);
+        queryClient.clear();
     };
 
     if (!user) {
