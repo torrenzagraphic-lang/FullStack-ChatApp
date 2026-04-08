@@ -1,14 +1,268 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import {
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import React from "react";
+import { useAuth } from "@/contexts/auth-contexts";
+import { useRouter } from "expo-router";
+import { useFriends } from "@/hooks/useFriendQueries";
+import { Ionicons } from "@expo/vector-icons";
 
-const Profile = () => {
-  return (
-    <View>
-      <Text>Profile</Text>
-    </View>
-  )
+interface Friend {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
 }
 
-export default Profile
+const Profile = () => {
+    const { user, signOut } = useAuth();
+    const router = useRouter();
+    const { data: friends = [], isLoading } = useFriends();
 
-const styles = StyleSheet.create({})
+    const handleSignOut = () => {
+        Alert.alert("Log out", "Are you sure you want to log out?", [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: "Log out",
+                style: "destructive",
+                onPress: () => signOut(),
+            },
+        ]);
+    };
+
+    if (!user) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.errorText}>Not Logged In</Text>
+            </View>
+        );
+    }
+
+    return (
+        <ScrollView style={styles.container}>
+            <View style={styles.profileHeader}>
+                <Image
+                    source={{ uri: `https://robohash.org/${user.id}` }}
+                    style={styles.avatar}
+                />
+                <Text style={styles.name}>{user.name}</Text>
+                <Text style={styles.email}>{user.email}</Text>
+            </View>
+
+            <View style={styles.statsContainer}>
+                <View style={styles.statItem}>
+                    <Text style={styles.statValue}>{friends.length}</Text>
+                    <Text style={styles.statLabel}>Friends</Text>
+                </View>
+            </View>
+            <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="people" size={20} color={"#fff"} />
+                    <Text style={styles.sectionTitle}>Friends</Text>
+                </View>
+                {isLoading ? (
+                    <ActivityIndicator
+                        size={"large"}
+                        color={"#077AFF"}
+                        style={{ marginTop: 20 }}
+                    />
+                ) : friends.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <Ionicons
+                            name="people-outline"
+                            size={48}
+                            color={"#666"}
+                        />
+                        <Text style={styles.emptyText}>No Friends Yet</Text>
+                        <Text style={styles.emptySubText}>
+                            Go to discover to add friends
+                        </Text>
+                        <Text></Text>
+                    </View>
+                ) : (
+                    friends.map((friend: Friend) => (
+                        <TouchableOpacity
+                            key={friend.id}
+                            style={styles.friendItem}
+                            onPress={() => {}}
+                        >
+                            <Image
+                                source={{
+                                    uri: `https://robohash.org/${friend.id}`,
+                                }}
+                                style={styles.friendAvatar}
+                            />
+                            <View style={styles.friendInfo}>
+                                <Text style={styles.friendName}>
+                                    {friend.name}
+                                </Text>
+                                <Text style={styles.friendEmail}>
+                                    {friend.email}
+                                </Text>
+                            </View>
+                            <Ionicons
+                                name="chatbubbles"
+                                size={20}
+                                color={"#007AFF"}
+                            />
+                        </TouchableOpacity>
+                    ))
+                )}
+            </View>
+            <TouchableOpacity
+                style={styles.signOutButton}
+                onPress={handleSignOut}
+            >
+                <Ionicons name="log-out" size={20} color={"#FF3B30"} />
+                <Text style={styles.signOutText}>Log Out</Text>
+            </TouchableOpacity>
+        </ScrollView>
+    );
+};
+
+export default Profile;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#121212",
+    },
+    profileHeader: {
+        alignItems: "center",
+        paddingVertical: 40,
+        paddingHorizontal: 20,
+        backgroundColor: "#1e1e1e",
+        borderBottomWidth: 1,
+        borderBottomColor: "#333",
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        marginBottom: 16,
+        backgroundColor: "#333",
+    },
+    name: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: "#fff",
+        marginBottom: 4,
+    },
+    email: {
+        fontSize: 14,
+        color: "#888",
+    },
+    statsContainer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        paddingVertical: 20,
+        backgroundColor: "#1e1e1e",
+        borderBottomWidth: 1,
+        borderBottomColor: "#333",
+    },
+    statItem: {
+        alignItems: "center",
+        paddingHorizontal: 30,
+    },
+    statValue: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: "#007AFF",
+    },
+    statLabel: {
+        fontSize: 12,
+        color: "#888",
+        marginTop: 4,
+    },
+    section: {
+        marginTop: 20,
+        paddingHorizontal: 16,
+    },
+    sectionHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 16,
+        gap: 8,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#fff",
+    },
+    friendItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 12,
+        backgroundColor: "#1e1e1e",
+        borderRadius: 12,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: "#333",
+    },
+    friendAvatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        marginRight: 12,
+        backgroundColor: "#333",
+    },
+    friendInfo: {
+        flex: 1,
+    },
+    friendName: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#fff",
+        marginBottom: 2,
+    },
+    friendEmail: {
+        fontSize: 12,
+        color: "#888",
+    },
+    emptyState: {
+        alignItems: "center",
+        paddingVertical: 40,
+    },
+    emptyText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#fff",
+        marginTop: 12,
+    },
+    emptySubText: {
+        fontSize: 14,
+        color: "#888",
+        marginTop: 4,
+    },
+    signOutButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        marginHorizontal: 16,
+        marginTop: 30,
+        padding: 16,
+        backgroundColor: "#1e1e1e",
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "#FF3B30",
+    },
+    signOutText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#FF3B30",
+    },
+    errorText: {
+        color: "#fff",
+        fontSize: 16,
+        textAlign: "center",
+        marginTop: 40,
+    },
+});
