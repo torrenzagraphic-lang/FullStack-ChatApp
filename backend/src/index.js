@@ -3,6 +3,7 @@ import { toNodeHandler } from "better-auth/node";
 import "dotenv/config";
 import { auth } from "./lib/auth.js";
 import { friendRouter } from "./modules/friend/friend.routes.js";
+import { chatRouter } from "./modules/chat/chat.routes.js";
 const app = express();
 
 app.all("/api/auth/{*any}", toNodeHandler(auth));
@@ -11,6 +12,7 @@ app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 
 app.use("/api/friend", friendRouter);
+app.use("/api/chat", chatRouter);
 
 app.get("/", (req, res) => {
     res.send("Hello From backend");
