@@ -39,8 +39,59 @@ export const getMessage = async (
     userId2,
     limit = 50,
     cursor = null,
-) => {};
+) => {
+    const where = {
+        OR: [
+            { senderId: userId1, receiverId: userId2 },
+            { senderId: userId2, receiverId: userId1 },
+        ],
+    };
 
-export const markMessagesAsRead = async (userId, senderId) => {};
+    if (cursor) {
+        where.AND = {
+            createdAt: { lt: new Date(cursor) },
+        };
+    }
 
-export async function getConversation(userId) {}
+    const messages = await prisma.message.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: limit + 1,
+    });
+
+    const hasMore = messages.length > limit;
+    const results = hasMore ? messages.slice(0, limit) : messages;
+
+    return {
+        messages: results.reverse(),
+        hasMore,
+        nextCursor: hasMore
+            ? results[results.length - 1].createdAt.toISOString()
+            : null,
+    };
+};
+
+export const markMessagesAsRead = async (userId, senderId) => {
+    await prisma.message.updateMany({
+        where: {
+            senderId: senderId,
+            receiverId: userId,
+            isRead: false,
+        },
+        data: {
+            isRead: true,
+        },
+    });
+};
+
+export async function getConversation(userId) {
+    const friendShips = await prisma.friend.findMany({
+        where: {
+            OR: [
+                {
+                    userId1: userId,
+                },
+            ],
+        },
+    });
+}
