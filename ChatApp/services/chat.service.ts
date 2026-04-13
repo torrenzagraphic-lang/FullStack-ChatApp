@@ -37,7 +37,42 @@ export const chatService = {
         if (!res.ok) throw new Error("Failed to send Messages");
         return data;
     },
-    getMessage: async () => {},
-    getConversation: async () => {},
+    getMessage: async (
+        otherUserId: string,
+        limit?: number,
+        cursor?: string,
+    ) => {
+        const headers = await getHeaders();
+
+        const params = new URLSearchParams();
+
+        if (limit) params.append("limit", limit.toString());
+        if (cursor) params.append("cursor", cursor);
+
+        const queryString = params.toString();
+
+        const url = `${API_URL}/chat/messages/${otherUserId}${queryString ? `?${queryString}` : ""}`;
+        const res = await fetch(url, {
+            method: "GET",
+            headers,
+        });
+
+        const data = await res.clone().json();
+
+        if (!res.ok) throw new Error("Failed to fetch messages");
+        return data;
+    },
+    getConversation: async () => {
+        const headers = await getHeaders();
+        const res = await fetch(`${API_URL}/chat/conversations`, {
+            method: "GET",
+            headers,
+        });
+
+        const data = await res.clone().json();
+
+        if (!res.ok) throw new Error("Failed to fetch messages");
+        return data;
+    },
     markRead: async () => {},
 };
